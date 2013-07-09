@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>SC-SlowDowner</title>
+		<link href="css/Aristo/Aristo.css" rel="stylesheet">
+		<link rel="stylesheet" media="screen" type="text/css" href="css/style.css" />
+		<script type="text/javascript" src="js/head.min.js"></script>
+		<script type="text/javascript" src="js/app.js"></script>
+		
+	</head>
+	<body>
+		<div id="player">
+			<div id="title"></div>
+			<div id="description"></div>
+			<div id="waveform"><img src="#" /></div>
+			<div id="volume"><span class="tooltip"></span></div>
+			<div id="buttons">
+					<button id="rewind">rewind</button>
+					<button id="play">play</button>
+					<button id="stop">stop</button>
+					<input type="checkbox" id="loop" /><label for="loop">loop</label>
+					<button id="openUrl">open url</button>
+			</div>
+			<div id="progress"><span class="tooltip"></span></div>
+			<div id="selection"><span class="tooltip"></span></div>
+			<div id="selections">
+				<span id="selectionButtons"></span>
+				<button id="addSelection">add selection</button>
+				<button id="editSelectionName">edit name</button>
+				<button id="moveLeft">move left</button>
+				<button id="moveRight">move right</button>
+			</div>
+		</div>
+		<input type="file" id="files" name="files[]" />
+		
+		<div id="dialog-form" title="Edit Parts Description">
+			<form>
+			  <fieldset>
+					<label for="name">Description</label>
+					<input type="text" name="description" id="description" class="text ui-widget-content ui-corner-all" autocomplete="off" />
+			  </fieldset>
+			</form>
+		</div>
+		<div id="dialog-url-form" title="open file from url">
+			<form>
+			  <fieldset>
+					<label for="name">Soundcloud Track URL</label>
+					<input type="text" name="url" id="url" class="text ui-widget-content ui-corner-all" autocomplete="off" />
+			  </fieldset>
+			</form>
+		</div>
+	</body>
+</html>

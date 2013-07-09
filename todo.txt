@@ -1,0 +1,10 @@
+- bpm detection -> enter repeating bars!
+- better ui
+- loading progress bar
+- serialize selectionSlider
+- url input statt file upload
+- low and high pass filter (to remove melody)
+- serialize selections in url
+- pitch shift
+
+metronome using web audio (http://www.html5rocks.com/en/tutorials/webaudio/intro/?redirect_from_locale=de)
