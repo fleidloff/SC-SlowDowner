@@ -292,7 +292,7 @@ function initSelectionButtons(id, sel) {
 
 function initButtons(id) {
 	$('#buttons').html(buttonsHTML);
-	$('#bookmarklet').button();
+	//$('#bookmarklet').button();
     $( "#rewind" ).button({
 		text: false,
 		icons: {
