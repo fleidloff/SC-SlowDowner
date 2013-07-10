@@ -118,6 +118,11 @@ function moveSelectionButton(move) {
  
 function openUrl(url) {
 	console.log("open url: " + url);
+		if (url != stdTrackUrl) {
+			standard = false;
+		} else {
+			standard = true;
+		}
 		SC.get("/resolve", {url: url}, function(e) { 
 			SC.stream(e.uri, options, function(sound){
 				mySound = sound;
@@ -139,6 +144,8 @@ var getInitialTrack = function() {
 	}
 	if (track != stdTrackUrl) {
 		standard = false;
+	} else {
+		standard = true;
 	}
 	return new String(track);
 };
@@ -292,7 +299,7 @@ function initSelectionButtons(id, sel) {
 
 function initButtons(id) {
 	$('#buttons').html(buttonsHTML);
-	$('#bookmarklet').button();
+	//$('#bookmarklet').button();
     $( "#rewind" ).button({
 		text: false,
 		icons: {
