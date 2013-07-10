@@ -12,27 +12,30 @@ var selection;
 var selections = [];
 var selected;
 var loopFile;
-var volume;
+var speed = 1;
 var currentFile = ""; 
 var playing = false;
 var timer;
-var trackID = "/tracks/16571607";
-var options =  {useHTML5Audio: true, preferFlash: false, autoLoad: true, html5Only: true};
+var standard = true;
+var stdTrackUrl = "https://soundcloud.com/overgood/esquina-latina-oye-como-va";
+var options =  {preferFlash: false, useHTML5Audio: true};
 
-head.js("js/jquery-1.9.1.js", "//connect.soundcloud.com/sdk.js", "js/jquery-ui-1.10.1.custom.js",  function() {	
+head.js("js/jquery-1.9.1.js", "js/sdk.js", "js/jquery-ui-1.10.1.custom.js",  function() {	
 	SC.initialize({
+		preferFlash: false,
+		useHTML5Audio: true,
 		client_id: "c5b33817e01cd515b9557e975888cae4",
 		redirect_uri: "https://dl.dropboxusercontent.com/u/5100494/SC-SlowDowner/callback.html",
 	});
 	
-	openUrl("https://soundcloud.com/overgood/esquina-latina-oye-como-va");
+	openUrl(getInitialTrack());
 	buttonsHTML = $('#buttons').html();
 	
 });
 
 // init functions
 function init() {
-	initVolumeSlider('#volume');
+	initSpeedSlider('#speed');
 	initProgressSlider('#progress');
 	initSelectionSlider('#selection');
 	initAddSelectionButtons();
@@ -41,16 +44,25 @@ function init() {
 	initSelectionButtons('#selectionButtons', 0);
 	//initLoadingBar('#loading');
 	initButtons('#buttons');
+	setSpeed(speed);
  }
  
 function initSelections() {
-	selections = [
-		{ start: 0, end: 12, name: "Intro" },
-		{ start: 11, end: 18, name: "Chorus" },
-		{ start: 31, end: 54, name: "Solo Git" },
-		{ start: 66, end: 89, name: "Solo Sax" },
-		{ start: 96, end: 100, name: "End" }
-	];
+	if (standard) {
+		selections = [
+			{ start: 0, end: 12, name: "Intro" },
+			{ start: 11, end: 18, name: "Chorus" },
+			{ start: 31, end: 54, name: "Solo Git" },
+			{ start: 66, end: 89, name: "Solo Sax" },
+			{ start: 96, end: 100, name: "End" }
+		];
+	} else {
+		selections = [
+			{ start: 0, end: 12, name: "Start" },
+			{ start: 20, end: 70, name: "Mid" },
+			{ start: 80, end: 100, name: "End" }
+		];
+	}
 }
    
 function storeCurrentSelection() {
@@ -108,14 +120,28 @@ function openUrl(url) {
 	console.log("open url: " + url);
 		SC.get("/resolve", {url: url}, function(e) { 
 			SC.stream(e.uri, options, function(sound){
-			mySound = sound;
-			init();
-			$("#title").html(e.title);
-			$("#description").html(e.description);
-			$("#waveform img").attr("src", e.waveform_url)
+				mySound = sound;
+				init();
+				$("#title").html(e.title);
+				$("#description").html(e.description);
+				$("#waveform img").attr("src", e.waveform_url)
 		});
 	});
 }
+
+var getInitialTrack = function() {
+	var track = stdTrackUrl;
+	if (location.hash.length>0) {
+		track = location.hash.substring(1);
+	} 
+	if (track == "undefined") {
+		track = stdTrackUrl;
+	}
+	if (track != stdTrackUrl) {
+		standard = false;
+	}
+	return new String(track);
+};
  
 function initDialogs() {
 	$("#dialog-form").dialog({
@@ -266,6 +292,7 @@ function initSelectionButtons(id, sel) {
 
 function initButtons(id) {
 	$('#buttons').html(buttonsHTML);
+	$('#bookmarklet').button();
     $( "#rewind" ).button({
 		text: false,
 		icons: {
@@ -273,7 +300,7 @@ function initButtons(id) {
 		}
 	})
 		.click(function() {
-			mySound.setPosition(selection.slider('values')[0] * mySound.durationEstimate / 100).fadeTo(volume, 1500);
+			mySound.setPosition(selection.slider('values')[0] * mySound.durationEstimate / 100);
 		});
 	$( "#openUrl" ).button({
 		text: false,
@@ -402,31 +429,32 @@ function initProgressSlider(id) {
     });
 }
 
-function initVolumeSlider(id) {
+function initSpeedSlider(id) {
 	$(id + ' .tooltip').hide();
 	$(id + ' .tooltip').css('left', -10); 
-	
-	volume = 80;
-	mySound.setVolume(volume);
 	
     $(id).slider({
 		orientation: "vertical",
 		range: "min",
-		min: 0,
+		min: 0.5,
 		max: 100,
-		value: 80,
+		value: 25,
+		step: 0.05,
 		change: function( event, ui ) {
 			//console.log("position: " + ui.value);
 			//mySound.setTime(buzz.fromPercent(ui.value, mySound.getDuration()));			
 			var value = 200 - (($(id).slider('value') - 0.0) * 2 / 1)- 40;
-			$(id + ' .tooltip').css('top', value).text(ui.value);
+			
+			var speedValue = (ui.value + 25) / 100 * 2;
+			speedValue = Math.round(speedValue * 100) / 100;
+			$(id + ' .tooltip').css('top', value).text(speedValue);
 		},
 		slide: function( event, ui ) {
-			console.log("volume: " + ui.value);
-			mySound.setVolume(ui.value);		
-			volume = ui.value;
+			var speedValue = (ui.value + 25) / 100 * 2;
+			speedValue = Math.round(speedValue * 100) / 100;
 			var value = 200 - (($(id).slider('value') - 0.0) * 2 / 1)- 40;
-			$(id + ' .tooltip').css('top', value).text(ui.value);  
+			$(id + ' .tooltip').css('top', value).text(speedValue);  
+			setSpeed(speedValue);	
 			
 		},
 		start: function(event,ui) {
@@ -439,6 +467,14 @@ function initVolumeSlider(id) {
 }
 
 // player functions
+var setSpeed = function(speed) {
+	console.log("setSpeed: " + speed);
+	if (mySound.isHTML5 == true) {
+		mySound._a.playbackRate = speed;
+	} else {
+		console.log("cannot change speed because player is not HTML5!");
+	}
+}
 
 function play() {
 	playing = true;

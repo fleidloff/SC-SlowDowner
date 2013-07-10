@@ -1,3 +1,7 @@
+- serialization
+- bookmarklet
+- speed change!
+
 - bpm detection -> enter repeating bars!
 - better ui
 - loading progress bar

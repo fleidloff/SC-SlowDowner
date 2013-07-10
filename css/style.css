@@ -32,18 +32,11 @@ div#waveform img{
 	background: #d7d7d7;
 }
 
-div#volume {
+div#speed {
 	height: 200px;
 	position: absolute;
 	left: 0;
 	top: 0;
-}
-
-div#speed {
-	width: 250px;
-	position: absolute;
-	left: 40px;
-	top: 120px;
 }
 
 div#buttons {
