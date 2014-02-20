@@ -1,10 +1,3 @@
-/*// Check for the various File API support.
-if (window.File && window.FileReader && window.FileList && window.Blob) {
-  // Great success! All the File APIs are supported.
-} else {
-  alert('The File APIs are not fully supported in this browser.');
-}*/
-
 // global sound stuff
 var mySound;
 var buttonsHTML;
@@ -19,6 +12,8 @@ var timer;
 var standard = true;
 var stdTrackUrl = "https://soundcloud.com/overgood/esquina-latina-oye-como-va";
 var options =  {preferFlash: false, useHTML5Audio: true};
+var urlParams = getUrlVars();
+var currentUrl = "";
 
 head.js("js/jquery-1.9.1.js", "js/sdk.js", "js/jquery-ui-1.10.1.custom.js",  function() {	
 	SC.initialize({
@@ -48,7 +43,9 @@ function init() {
  }
  
 function initSelections() {
-	if (standard) {
+	if (urlParams["selections"]) {
+		selections = JSON.parse(decodeURIComponent(urlParams["selections"]));
+	} else if (standard) {
 		selections = [
 			{ start: 0, end: 12, name: "Intro" },
 			{ start: 11, end: 18, name: "Chorus" },
@@ -76,6 +73,13 @@ function openUrlDialog() {
 	$( "#dialog-url-form" ).dialog( "open" );
 } 
  
+function getExportLink() {
+	var result = window.location.href.split("?")[0];
+	result = result + "?track=" + currentUrl + "&selections=" + encodeURIComponent(JSON.stringify(selections));
+
+	return result;
+}
+
 function editSelectionName() {
 	console.log("edit element nr " + selected);
 	$("#dialog-form input#description").val(selections[selected].name);
@@ -117,12 +121,16 @@ function moveSelectionButton(move) {
 }
  
 function openUrl(url) {
+	if(playing) {
+		stop();
+	}
 	console.log("open url: " + url);
 		if (url != stdTrackUrl) {
 			standard = false;
 		} else {
 			standard = true;
 		}
+		currentUrl = url;
 		SC.get("/resolve", {url: url}, function(e) { 
 			SC.stream(e.uri, options, function(sound){
 				mySound = sound;
@@ -135,11 +143,8 @@ function openUrl(url) {
 }
 
 var getInitialTrack = function() {
-	var track = stdTrackUrl;
-	if (location.hash.length>0) {
-		track = location.hash.substring(1);
-	} 
-	if (track == "undefined") {
+	var track = urlParams['track'];
+	if (!track) {
 		track = stdTrackUrl;
 	}
 	if (track != stdTrackUrl) {
@@ -317,6 +322,15 @@ function initButtons(id) {
 	}).click(function() {
 		console.log("open url");
 		openUrlDialog();
+	});
+	$( "#exportTrack" ).button({
+		text: false,
+		icons: {
+			primary: "ui-icon-star"
+		}
+	}).click(function() {
+		console.log("export track");
+		window.location.href = getExportLink();
 	});
     $( "#play" ).button({
 		text: false,
@@ -538,4 +552,15 @@ function pause() {
 
 function loop(loopValue) {
 	loopFile = loopValue;
+}
+
+function getUrlVars() {
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
 }
